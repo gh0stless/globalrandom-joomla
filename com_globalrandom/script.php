@@ -62,6 +62,30 @@ return new class implements InstallerScriptInterface {
 
     public function postflight(string $type, InstallerAdapter $parent): bool
     {
+        // One-off cleanup: a 23.07.2026 update briefly shipped an
+        // App/Beschreibung/Description nav feature that was reverted the
+        // same day (unwanted — the description pages are already reachable
+        // via the main site, and the extra buttons just took up space).
+        // Joomla's installer only ever copies/overwrites what the current
+        // manifest lists; it never deletes files a PREVIOUS version
+        // installed that the new manifest no longer mentions. So the
+        // reverted files ended up orphaned on disk. Joomla's own installer
+        // process is used to remove them here instead of asking for fresh
+        // FTP/SSH credentials for a one-off manual delete.
+        if ($type === 'update') {
+            $orphaned = [
+                JPATH_ROOT . '/components/com_globalrandom/beschreibung.html',
+                JPATH_ROOT . '/components/com_globalrandom/description.html',
+                JPATH_ROOT . '/media/com_globalrandom/js/nav.js',
+            ];
+
+            foreach ($orphaned as $path) {
+                if (is_file($path)) {
+                    @unlink($path);
+                }
+            }
+        }
+
         return true;
     }
 };
