@@ -16,29 +16,30 @@
 
 defined('_JEXEC') or die;
 
-use Joomla\CMS\Factory;
 use Joomla\CMS\Installer\InstallerAdapter;
 use Joomla\CMS\Installer\InstallerScriptInterface;
-use Joomla\CMS\Language\Text;
 
 return new class implements InstallerScriptInterface {
     private const SUPPORTED_MAJOR = 6;
 
     public function preflight(string $type, InstallerAdapter $parent): bool
     {
+        // Deliberately not Text::_()/Text::sprintf(): on a fresh install
+        // this runs before com_globalrandom's own language files are
+        // registered, so a language key would render as the raw,
+        // untranslated key string instead of a message. Hardcoded string
+        // + exception is the documented reliable way to abort a Joomla
+        // install from preflight().
         $major = (int) explode('.', JVERSION)[0];
 
         if ($major !== self::SUPPORTED_MAJOR) {
-            Factory::getApplication()->enqueueMessage(
-                Text::sprintf(
-                    'COM_GLOBALRANDOM_INSTALL_WRONG_JOOMLA_VERSION',
-                    self::SUPPORTED_MAJOR,
-                    JVERSION
-                ),
-                'error'
-            );
-
-            return false;
+            throw new \RuntimeException(sprintf(
+                'com_globalrandom was built and tested for Joomla %d.x only '
+                . '— this site is running %s. Installation stopped to avoid '
+                . 'a silent break; re-check compatibility before forcing an install.',
+                self::SUPPORTED_MAJOR,
+                JVERSION
+            ));
         }
 
         return true;
