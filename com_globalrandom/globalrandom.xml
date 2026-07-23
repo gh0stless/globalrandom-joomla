@@ -17,6 +17,7 @@
         <folder>tmpl</folder>
         <folder>language</folder>
         <filename>global-random.html</filename>
+        <filename>metadata.xml</filename>
     </files>
     <languages folder="site/language">
         <language tag="en-GB">en-GB/en-GB.com_globalrandom.ini</language>
@@ -37,7 +38,9 @@
         </files>
         <languages folder="admin/language">
             <language tag="en-GB">en-GB/en-GB.com_globalrandom.ini</language>
+            <language tag="en-GB">en-GB/en-GB.com_globalrandom.sys.ini</language>
             <language tag="de-DE">de-DE/de-DE.com_globalrandom.ini</language>
+            <language tag="de-DE">de-DE/de-DE.com_globalrandom.sys.ini</language>
         </languages>
     </administration>
 </extension>
