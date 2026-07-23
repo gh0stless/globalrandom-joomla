@@ -16,27 +16,3 @@
     min-height: 640px;
     border: 0;
 }
-
-/* Nav bar mirrors the Nextcloud spin-off's App/Beschreibung/Description
-   switcher (same three targets, same class names) so the two stay easy to
-   keep in sync. */
-.globalrandom-nav {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 8px;
-}
-
-.globalrandom-nav-btn {
-    border: none;
-    background: transparent;
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: normal;
-}
-
-.globalrandom-nav-btn.active {
-    background: rgba(0, 0, 0, 0.08);
-    font-weight: bold;
-}

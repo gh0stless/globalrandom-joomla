@@ -1,15 +1,15 @@
 <?php
 
 /**
- * Raw passthrough of the unmodified global-random.html (and its two
- * description pages), served same-origin so they can sit in the wrapper
- * iframe (see View\Random). Selected via an allow-listed &doc= parameter —
- * never build a path from user input directly. Each doc gets its own
- * Content-Security-Policy, scoped to what that specific file actually
- * needs; the domain lists were confirmed by grepping the files for their
- * real fetch()/script targets and re-checked against a real browser
- * console on crazy-midi.de, not guessed from memory (see the Nextcloud
- * spin-off's CSP list, which was memory-based and turned out incomplete).
+ * Raw passthrough of the unmodified global-random.html, served same-origin
+ * so it can sit in the wrapper iframe (see View\Random). This view sets its
+ * own Content-Security-Policy, scoped to exactly the third-party domains
+ * GLOBAL RANDOM itself calls out to (Spotify embed/oEmbed, MusicBrainz,
+ * Wikipedia/Wikidata, MyMemory, Open-Meteo, jsDelivr/Twemoji) — confirmed
+ * by grepping global-random.html for its actual fetch()/script targets,
+ * not guessed. Still worth re-checking in the browser console against the
+ * real crazy-midi.de deployment (CSP violations show up there explicitly)
+ * before calling this final, same lesson learned on the Nextcloud spin-off.
  *
  * @package     Joomla.Site
  * @subpackage  com_globalrandom
@@ -26,14 +26,20 @@ use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 
 class RawView extends BaseHtmlView
 {
-    // embed-cdn.spotifycdn.com and 'unsafe-eval' added 23.07.2026 after a
-    // real console check against crazy-midi.de: Spotify's iframe-api
-    // script loads a follow-up bundle from there at runtime (not
-    // sdk.scdn.co alone, as assumed from the Nextcloud spin-off's
-    // unverified CSP list) and that bundle evaluates a string as script
-    // during its own init — fails on page load, before any PLAY click, so
-    // 'unsafe-eval' is load-bearing here, not a guess.
-    private const CSP_APP = "default-src 'self'; "
+    // embed-cdn.spotifycdn.com added 23.07.2026 after a real console check
+    // against crazy-midi.de: Spotify's iframe-api script loads its own
+    // follow-up bundle from there at runtime, not from sdk.scdn.co as
+    // assumed from the Nextcloud spin-off's (unverified) CSP list. Exactly
+    // the kind of gap only a real browser console catches — see class doc.
+    // 'unsafe-eval' added 23.07.2026, also after a real console check:
+    // Spotify's embed-cdn.spotifycdn.com bundle evaluates a string as
+    // script during its own init (fails on page load, before any PLAY
+    // click), not just some optional feature. Deliberate deviation from
+    // the Nextcloud spin-off's "start tight, don't open eval
+    // prophylactically" stance — here there's proof it's load-bearing,
+    // not a guess. Still scoped to the same short, explicit script-src
+    // allow-list, not opened globally.
+    private const CSP = "default-src 'self'; "
         . "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://open.spotify.com https://sdk.scdn.co "
         . "https://embed-cdn.spotifycdn.com https://cdn.jsdelivr.net; "
         . "style-src 'self' 'unsafe-inline'; "
@@ -47,33 +53,13 @@ class RawView extends BaseHtmlView
         . "frame-src https://open.spotify.com; "
         . "object-src 'none'; base-uri 'self'; form-action 'self'";
 
-    // Description pages are static text + an inline boot-sequence script,
-    // no fetch()/XHR at all — only external need is Google Fonts (grepped:
-    // fonts.googleapis.com import, so fonts.gstatic.com for the actual
-    // woff2 files too).
-    private const CSP_DOC = "default-src 'self'; "
-        . "script-src 'self' 'unsafe-inline'; "
-        . "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
-        . "font-src 'self' https://fonts.gstatic.com data:; "
-        . "img-src 'self' data:; "
-        . "object-src 'none'; base-uri 'self'; form-action 'self'";
-
-    private const DOCS = [
-        'app' => ['file' => 'global-random.html', 'csp' => self::CSP_APP],
-        'de' => ['file' => 'beschreibung.html', 'csp' => self::CSP_DOC],
-        'en' => ['file' => 'description.html', 'csp' => self::CSP_DOC],
-    ];
-
     public function display($tpl = null)
     {
         $app = Factory::getApplication();
-        $doc = $app->getInput()->getCmd('doc', 'app');
-        $entry = self::DOCS[$doc] ?? self::DOCS['app'];
-
-        $app->setHeader('Content-Security-Policy', $entry['csp'], true);
+        $app->setHeader('Content-Security-Policy', self::CSP, true);
         $app->setHeader('X-Content-Type-Options', 'nosniff', true);
 
-        $path = JPATH_ROOT . '/components/com_globalrandom/' . $entry['file'];
+        $path = JPATH_ROOT . '/components/com_globalrandom/global-random.html';
 
         echo file_get_contents($path);
     }
