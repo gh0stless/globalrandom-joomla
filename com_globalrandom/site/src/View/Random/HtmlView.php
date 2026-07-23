@@ -18,17 +18,29 @@ use Joomla\CMS\Router\Route;
 class HtmlView extends BaseHtmlView
 {
     /** @var string */
-    public $playerUrl;
+    public $appSrc;
+
+    /** @var string */
+    public $deSrc;
+
+    /** @var string */
+    public $enSrc;
 
     public function display($tpl = null)
     {
-        $this->playerUrl = Route::_('index.php?option=com_globalrandom&view=player&format=raw', false);
+        $this->appSrc = Route::_('index.php?option=com_globalrandom&view=player&format=raw&doc=app', false);
+        $this->deSrc = Route::_('index.php?option=com_globalrandom&view=player&format=raw&doc=de', false);
+        $this->enSrc = Route::_('index.php?option=com_globalrandom&view=player&format=raw&doc=en', false);
 
         $document = $this->getDocument();
         $document->setTitle(Text::_('COM_GLOBALRANDOM_PAGE_TITLE'));
         $document->getWebAssetManager()->registerAndUseStyle(
             'com_globalrandom.style',
             'media/com_globalrandom/css/style.css'
+        );
+        $document->getWebAssetManager()->registerAndUseScript(
+            'com_globalrandom.nav',
+            'media/com_globalrandom/js/nav.js'
         );
 
         parent::display($tpl);
