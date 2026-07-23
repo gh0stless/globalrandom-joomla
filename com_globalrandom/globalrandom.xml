@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="component" method="upgrade">
+    <name>com_globalrandom</name>
+    <author>Andreas S.</author>
+    <creationDate>2026-07-23</creationDate>
+    <copyright>Copyright (C) 2026 Andreas S. This wrapper component is licensed separately from the embedded GLOBAL RANDOM artwork (see global-random.html header for its own license).</copyright>
+    <license>AGPL-3.0-or-later</license>
+    <version>1.0.0</version>
+    <description>COM_GLOBALRANDOM_XML_DESCRIPTION</description>
+
+    <scriptfile>script.php</scriptfile>
+
+    <namespace path="src">GR\Component\Globalrandom</namespace>
+
+    <administration>
+        <menu>COM_GLOBALRANDOM</menu>
+        <files folder="admin">
+            <folder>services</folder>
+            <folder>src</folder>
+            <folder>tmpl</folder>
+            <folder>language</folder>
+        </files>
+        <languages folder="admin/language">
+            <language tag="en-GB">en-GB/en-GB.com_globalrandom.ini</language>
+            <language tag="de-DE">de-DE/de-DE.com_globalrandom.ini</language>
+        </languages>
+    </administration>
+
+    <site>
+        <files folder="site">
+            <folder>src</folder>
+            <folder>tmpl</folder>
+            <folder>language</folder>
+            <filename>global-random.html</filename>
+        </files>
+        <languages folder="site/language">
+            <language tag="en-GB">en-GB/en-GB.com_globalrandom.ini</language>
+            <language tag="de-DE">de-DE/de-DE.com_globalrandom.ini</language>
+        </languages>
+    </site>
+
+    <media destination="com_globalrandom" folder="media">
+        <folder>css</folder>
+    </media>
+</extension>

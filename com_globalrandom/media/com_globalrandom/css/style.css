@@ -1,0 +1,18 @@
+/* Unlike the Nextcloud spin-off (which could rely on knowing Nextcloud's
+   exact core CSS and fully chrome the page), a Joomla component has to
+   coexist with whatever template the site is running - here unknown until
+   crazy-midi.de is actually upgraded past Joomla 3. So this stays a plain,
+   template-agnostic block sized by viewport height rather than fighting
+   for position:absolute/inset control of the surrounding layout. Revisit
+   once tested against the real template. */
+.globalrandom-wrap {
+    width: 100%;
+}
+
+.globalrandom-wrap iframe {
+    display: block;
+    width: 100%;
+    height: 85vh;
+    min-height: 640px;
+    border: 0;
+}
