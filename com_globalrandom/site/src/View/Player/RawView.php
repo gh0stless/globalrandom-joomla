@@ -24,18 +24,32 @@ defined('_JEXEC') or die;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 
-class HtmlView extends BaseHtmlView
+class RawView extends BaseHtmlView
 {
+    // embed-cdn.spotifycdn.com added 23.07.2026 after a real console check
+    // against crazy-midi.de: Spotify's iframe-api script loads its own
+    // follow-up bundle from there at runtime, not from sdk.scdn.co as
+    // assumed from the Nextcloud spin-off's (unverified) CSP list. Exactly
+    // the kind of gap only a real browser console catches — see class doc.
+    // 'unsafe-eval' added 23.07.2026, also after a real console check:
+    // Spotify's embed-cdn.spotifycdn.com bundle evaluates a string as
+    // script during its own init (fails on page load, before any PLAY
+    // click), not just some optional feature. Deliberate deviation from
+    // the Nextcloud spin-off's "start tight, don't open eval
+    // prophylactically" stance — here there's proof it's load-bearing,
+    // not a guess. Still scoped to the same short, explicit script-src
+    // allow-list, not opened globally.
     private const CSP = "default-src 'self'; "
-        . "script-src 'self' 'unsafe-inline' https://open.spotify.com https://sdk.scdn.co https://cdn.jsdelivr.net; "
+        . "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://open.spotify.com https://sdk.scdn.co "
+        . "https://embed-cdn.spotifycdn.com https://cdn.jsdelivr.net; "
         . "style-src 'self' 'unsafe-inline'; "
         . "img-src 'self' data: blob: https://cdn.jsdelivr.net; "
         . "font-src 'self' data:; "
         . "media-src 'self' data: blob:; "
         . "connect-src 'self' https://musicbrainz.org https://api.mymemory.translated.net "
         . "https://open.spotify.com https://api.spotify.com https://sdk.scdn.co "
-        . "https://*.wikipedia.org https://www.wikidata.org https://query.wikidata.org "
-        . "https://api.open-meteo.com; "
+        . "https://embed-cdn.spotifycdn.com https://*.wikipedia.org https://www.wikidata.org "
+        . "https://query.wikidata.org https://api.open-meteo.com; "
         . "frame-src https://open.spotify.com; "
         . "object-src 'none'; base-uri 'self'; form-action 'self'";
 
