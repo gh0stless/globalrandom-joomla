@@ -5,7 +5,7 @@
     <creationDate>2026-07-23</creationDate>
     <copyright>Copyright (C) 2026 Andreas S. This wrapper component is licensed separately from the embedded GLOBAL RANDOM artwork (see global-random.html header for its own license).</copyright>
     <license>AGPL-3.0-or-later</license>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <description>COM_GLOBALRANDOM_XML_DESCRIPTION</description>
 
     <scriptfile>script.php</scriptfile>
@@ -17,6 +17,8 @@
         <folder>tmpl</folder>
         <folder>language</folder>
         <filename>global-random.html</filename>
+        <filename>beschreibung.html</filename>
+        <filename>description.html</filename>
         <filename>metadata.xml</filename>
     </files>
     <languages folder="site/language">
