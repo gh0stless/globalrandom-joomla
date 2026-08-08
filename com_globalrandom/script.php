@@ -72,10 +72,19 @@ return new class implements InstallerScriptInterface {
         // reverted files ended up orphaned on disk. Joomla's own installer
         // process is used to remove them here instead of asking for fresh
         // FTP/SSH credentials for a one-off manual delete.
+        // IMPORTANT: beschreibung.html/description.html used to be in this
+        // list too (they were genuinely orphaned at the moment this was
+        // written) — but f6d4450 (25.07.2026) re-added both to the <files>
+        // manifest as legitimate shipped files (global-random.html links to
+        // them relatively; without them that link 404s). Nobody removed
+        // them from here at the time, so every update since then installed
+        // them and then immediately deleted them again in this same
+        // postflight step — silently 404ing both live description pages on
+        // every sync (caught live 08.08.2026). Only nav.js is still
+        // actually orphaned (Joomla's <media> destination isn't pruned the
+        // way <files> is, unlike the other two).
         if ($type === 'update') {
             $orphaned = [
-                JPATH_ROOT . '/components/com_globalrandom/beschreibung.html',
-                JPATH_ROOT . '/components/com_globalrandom/description.html',
                 JPATH_ROOT . '/media/com_globalrandom/js/nav.js',
             ];
 
