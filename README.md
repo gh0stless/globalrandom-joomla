@@ -2,7 +2,7 @@
 
 A Joomla component wrapper that embeds **[GLOBAL RANDOM](https://github.com/gh0stless/global-random)** — a self-contained HTML radio that plays music from 247 countries via real, fairness-weighted randomness (MusicBrainz + Spotify), with live translation into up to 87 languages.
 
-Live: **[crazy-midi.de/global-random](https://crazy-midi.de/global-random/)** (deployed via this component's Joomla installation)
+Live reference (original, non-Joomla deployment): **[crazy-midi.de/global-random](https://crazy-midi.de/global-random/)** — this component is also deployed as its own separate, live Joomla installation.
 
 ## What this repo is
 
