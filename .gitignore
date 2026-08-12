@@ -1,3 +1,5 @@
 Thumbs.db
 .DS_Store
 com_globalrandom.zip
+backup/
+.claude/
