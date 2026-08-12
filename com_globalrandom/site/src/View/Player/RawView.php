@@ -39,11 +39,22 @@ class RawView extends BaseHtmlView
     // prophylactically" stance — here there's proof it's load-bearing,
     // not a guess. Still scoped to the same short, explicit script-src
     // allow-list, not opened globally.
+    // upload.wikimedia.org added 12.08.2026, reported live: artist-card
+    // photos (fetchWiki()'s d.img, e.g. Welle:Erdball's band photo) never
+    // rendered on this deployment, only here — the FTP version has no CSP
+    // at all, and the Nextcloud one bypasses PHP/CSP entirely for this
+    // file, so neither was affected. Wikipedia's page-summary API returns
+    // a real, publicly loadable thumbnail URL (verified directly against
+    // the API), but the thumbnail file itself lives on a DIFFERENT host
+    // than *.wikipedia.org (which was already allow-listed for the article
+    // text fetches) - connect-src's *.wikipedia.org entry never covered
+    // this img-src gap, an easy thing to miss since it's not obviously the
+    // "same domain" despite being the same project.
     private const CSP = "default-src 'self'; "
         . "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://open.spotify.com https://sdk.scdn.co "
         . "https://embed-cdn.spotifycdn.com https://cdn.jsdelivr.net; "
         . "style-src 'self' 'unsafe-inline'; "
-        . "img-src 'self' data: blob: https://cdn.jsdelivr.net; "
+        . "img-src 'self' data: blob: https://cdn.jsdelivr.net https://upload.wikimedia.org; "
         . "font-src 'self' data:; "
         . "media-src 'self' data: blob:; "
         . "connect-src 'self' https://musicbrainz.org https://api.mymemory.translated.net "
