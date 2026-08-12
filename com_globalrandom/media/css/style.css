@@ -5,6 +5,25 @@
    template-agnostic block sized by viewport height rather than fighting
    for position:absolute/inset control of the surrounding layout. Revisit
    once tested against the real template. */
+/* The Helix Ultimate template wraps every non-article view in a Bootstrap
+   .container, which steps its max-width down at each breakpoint (1320 ->
+   1140 -> 960 -> 720px) - unlike the plain FTP deployment or the Nextcloud
+   spin-off, neither of which sit inside such a container. That stepped cap
+   eats enough width from this iframe that global-random.html's own internal
+   three-column breakpoint (1100px, checked against the IFRAME's viewport,
+   not the outer browser window) stops firing well before the outer window
+   is anywhere near narrow - reported live, reproduced at a 1280px browser
+   width (iframe only 1110px) and a 1100px one (iframe 930px, two-column
+   layout with the right-hand info column empty). global-random.html already
+   self-limits main to max-width:clamp(860px,85vw,1700px), so letting the
+   Joomla container go full-width here doesn't risk an oversized layout on
+   wide screens - it only stops this component's page from losing width the
+   app was never designed to lose. Scoped to this component's own body class
+   so no other template page is affected. */
+body.com-globalrandom #sp-main-body > .container {
+    max-width: 100%;
+}
+
 .globalrandom-wrap {
     width: 100%;
 }
