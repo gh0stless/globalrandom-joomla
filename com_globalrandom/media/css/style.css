@@ -28,10 +28,19 @@ body.com-globalrandom #sp-main-body > .container {
     width: 100%;
 }
 
+/* 85vh left the page 46px taller than the viewport at 1920x1080 (measured
+   live via Playwright: outer document scrollHeight 1126 vs clientHeight
+   1080), just to reveal the Helix Ultimate site footer below the app -
+   causing a second, redundant page-level scrollbar sitting right next to
+   the app's own internal #scroll-area scrollbar (reported live). The app
+   already handles its own overflow internally, so the outer page doesn't
+   need room to spare; calc(100vh - 210px) subtracts the measured combined
+   header+nav+footer chrome height (208px, +2px safety margin) so the page
+   fits the viewport exactly and only the app's own scrollbar remains. */
 .globalrandom-wrap iframe {
     display: block;
     width: 100%;
-    height: 85vh;
+    height: calc(100vh - 210px);
     min-height: 640px;
     border: 0;
 }
