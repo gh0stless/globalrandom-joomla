@@ -23,6 +23,7 @@ defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
+use Joomla\CMS\Uri\Uri;
 
 class RawView extends BaseHtmlView
 {
@@ -72,6 +73,33 @@ class RawView extends BaseHtmlView
 
         $path = JPATH_ROOT . '/components/com_globalrandom/global-random.html';
 
-        echo file_get_contents($path);
+        $content = file_get_contents($path);
+        /* Reported live: "Mehr Infos"/"More info" (#hint-link, target="_blank")
+           404'd here specifically. global-random.html links to
+           beschreibung.html/description.html with a plain RELATIVE href,
+           which resolves fine on the FTP deployment (a real static file at
+           a real path) and on Nextcloud (same - served straight by Apache,
+           bypassing PHP entirely, see its own CSP lesson above), but this
+           view is reached through a PHP route
+           (index.php/component/globalrandom/?view=player&format=raw), not
+           a real directory - the browser resolves the relative link against
+           THAT route's path, which Joomla's router has no reason to
+           recognize, hence the 404. The files DO exist as real static
+           files too (com_globalrandom/site/beschreibung.html +
+           description.html install into the component's site folder
+           unchanged, same as global-random.html) - Apache already serves
+           them directly there, confirmed live. Rewriting the two hrefs to
+           that known-working absolute path fixes this without touching
+           global-random.html itself, same approach as the CSP img-src
+           fix above. Uri::root() (not a hardcoded "/joomla/") stays
+           correct even if the install path moves again, as it already has
+           once (see HANDOVER.md - root before 21.07.2026, /joomla/ since). */
+        $componentBase = rtrim(Uri::root(), '/') . '/components/com_globalrandom/';
+        $content = str_replace(
+            ['href="beschreibung.html"', 'href="description.html"'],
+            ['href="' . $componentBase . 'beschreibung.html"', 'href="' . $componentBase . 'description.html"'],
+            $content
+        );
+        echo $content;
     }
 }
