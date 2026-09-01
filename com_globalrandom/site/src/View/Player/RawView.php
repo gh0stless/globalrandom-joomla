@@ -88,18 +88,43 @@ class RawView extends BaseHtmlView
            files too (com_globalrandom/site/beschreibung.html +
            description.html install into the component's site folder
            unchanged, same as global-random.html) - Apache already serves
-           them directly there, confirmed live. Rewriting the two hrefs to
-           that known-working absolute path fixes this without touching
-           global-random.html itself, same approach as the CSP img-src
-           fix above. Uri::root() (not a hardcoded "/joomla/") stays
-           correct even if the install path moves again, as it already has
-           once (see HANDOVER.md - root before 21.07.2026, /joomla/ since). */
+           them directly there, confirmed live.
+
+           A one-time str_replace of the initial href isn't enough:
+           localizeUI() (inside global-random.html, untouched here) sets
+           #hint-link.href='beschreibung.html' AGAIN client-side for a
+           German browser, right back to a relative path, at some point
+           after this PHP output was already sent - a static rewrite here
+           would only survive for non-German visitors. Fixed instead with
+           a capturing click listener that corrects href to the known-
+           working absolute path at the moment of the actual click,
+           whatever the CURRENT value is by then - correct regardless of
+           whether/when localizeUI() has run. Appended just before
+           </body> so it runs after global-random.html's own scripts have
+           at least defined #hint-link (localizeUI()'s async translation
+           branch can still finish later - the click-time check handles
+           that too, since it re-reads href fresh on every click, not just
+           once at page load). Uri::root() (not a hardcoded "/joomla/")
+           stays correct even if the install path moves again, as it
+           already has once (see HANDOVER.md - root before 21.07.2026,
+           /joomla/ since). Fixed entirely in this wrapper, global-
+           random.html itself untouched, same approach as the CSP img-src
+           fix above. */
         $componentBase = rtrim(Uri::root(), '/') . '/components/com_globalrandom/';
-        $content = str_replace(
-            ['href="beschreibung.html"', 'href="description.html"'],
-            ['href="' . $componentBase . 'beschreibung.html"', 'href="' . $componentBase . 'description.html"'],
-            $content
-        );
+        $fixScript = '<script>(function(){'
+            . 'var base=' . json_encode($componentBase) . ';'
+            . "document.addEventListener('click',function(e){"
+            . "var a=e.target&&e.target.closest?e.target.closest('#hint-link'):null;"
+            . "if(!a)return;"
+            . "var href=a.getAttribute('href')||'';"
+            . "if(href&&!/^https?:\\/\\//.test(href)){a.setAttribute('href',base+href);}"
+            . "},true);"
+            . '})();</script>';
+        if(strpos($content, '</body>') !== false){
+            $content = str_replace('</body>', $fixScript . '</body>', $content);
+        }else{
+            $content .= $fixScript;
+        }
         echo $content;
     }
 }
