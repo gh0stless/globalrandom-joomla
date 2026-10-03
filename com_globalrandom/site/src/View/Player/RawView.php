@@ -71,6 +71,22 @@ class RawView extends BaseHtmlView
         $app->setHeader('Content-Security-Policy', self::CSP, true);
         $app->setHeader('X-Content-Type-Options', 'nosniff', true);
 
+        /* Start counter, no IP read or stored anywhere: one row keyed by
+           'global-random' in the same table the crazy-midi download counter
+           uses (jos_downloadcounter_hits), so the existing admin view shows
+           it without any new schema. Wrapped so a DB hiccup can never break
+           the app itself. */
+        try {
+            $db = Factory::getDbo();
+            $db->setQuery(
+                "INSERT INTO #__downloadcounter_hits (filename, hits, last_hit)
+                 VALUES ('global-random', 1, NOW())
+                 ON DUPLICATE KEY UPDATE hits = hits + 1, last_hit = NOW()"
+            )->execute();
+        } catch (\Throwable $e) {
+            // counting is best-effort only
+        }
+
         $path = JPATH_ROOT . '/components/com_globalrandom/global-random.html';
 
         $content = file_get_contents($path);
