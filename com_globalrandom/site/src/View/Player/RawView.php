@@ -127,8 +127,23 @@ class RawView extends BaseHtmlView
            random.html itself untouched, same approach as the CSP img-src
            fix above. */
         $componentBase = rtrim(Uri::root(), '/') . '/components/com_globalrandom/';
+        /* 13.10.2026: same relative-path problem as #hint-link above, now
+           for grRandomSearch()'s fetch('random-track.php?n=9') — that file
+           is NOT inside com_globalrandom at all, it lives as a real static
+           file at httpdocs/global-random/random-track.php, a top-level
+           sibling of httpdocs/joomla/ (and of com_globalrandom, which only
+           installs INTO the Joomla tree). Uri::root()'s path component
+           tracks Joomla's own install location, not this unrelated sibling
+           folder, so it can't be reused here the way $componentBase above
+           reuses it for a path genuinely inside the Joomla tree. Scheme and
+           host only, no Joomla path assumptions either way. global-
+           random.html itself untouched — it just reads window.GR_API_BASE
+           if set, same pattern as every other Joomla-only fix in this
+           file. */
+        $apiBase = (Uri::getInstance()->isSsl() ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . '/global-random/';
         $fixScript = '<script>(function(){'
             . 'var base=' . json_encode($componentBase) . ';'
+            . 'window.GR_API_BASE=' . json_encode($apiBase) . ';'
             . "document.addEventListener('click',function(e){"
             . "var a=e.target&&e.target.closest?e.target.closest('#hint-link'):null;"
             . "if(!a)return;"
